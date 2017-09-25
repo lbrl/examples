@@ -1,2 +1,2 @@
 # examples
-Mostly devoteed to ROOT and PyROOT
+Mostly devoted to ROOT and PyROOT
