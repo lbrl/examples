@@ -52,11 +52,12 @@ def get_intensity(x):
     return f.Eval(x)
 
 def main():
-    n = 20
+    isDrawRays = True
+    n = 20# 100
     d = 46.+68.
-    D = 48.
-    h = r.TH1D('h', 'h', n, 0, 120)
-    c2 = r.TCanvas('c2', 'c2', 800, 800)
+    D = 48.# Lens' diameter.
+    h = r.TH1D('h', 'h', 240, -120, 120)
+    c2 = r.TCanvas('c2', 'c2', 600, 600)
     c2.DrawFrame(0, -200, 300, 100)
     c2.SetGrid()
     line = r.TLine()
@@ -73,23 +74,30 @@ def main():
         p = [x, d]
         x += 120.
         y = propogate([x, -180.], p, [120., 0], [140., -20.])
+        if y[1] < -dx or y[1] > dx:
+            continue
         k = reflect(p)
         # z = propogate(y, k, [0., -60.], [0., 60.])
         z = propogate(y, k, [50., -60.], [50., 60.])
         inten = get_intensity(z[1])
-        h.SetBinContent(h.FindBin(z[1]), inten)
+        h.SetBinContent(h.FindBin(x-120.), inten)
         ########################################
-        line.SetLineColor(r.kBlue)
-        line.SetLineStyle(2)
-        line.SetLineWidth(2)
-        line.DrawLine(x, -180, y[0], y[1])
-        line.SetLineColor(r.kRed)
-        line.SetLineStyle(1)
-        line.SetLineWidth(1)
-        line.DrawLine(y[0], y[1], z[0], z[1])
+        if isDrawRays:
+            line.SetLineColor(r.kBlue)
+            line.SetLineStyle(2)
+            line.SetLineWidth(2)
+            line.DrawLine(x, -180, y[0], y[1])
+            line.SetLineColor(r.kRed)
+            line.SetLineStyle(1)
+            line.SetLineWidth(1)
+            line.DrawLine(y[0], y[1], z[0], z[1])
     c2.Update()
-    c1 = r.TCanvas('c1', 'c1', 800, 800)
+    c1 = r.TCanvas('c1', 'c1', 600, 600)
     h.Draw()
+    f = r.TF1('f', 'gausn(0)', -60, 60)
+    f.SetParameters(1, 1, 25)
+    f.Draw('same')
+    h.Fit('gausn', '', 'same')
     c1.Update()
     raw_input()
 
